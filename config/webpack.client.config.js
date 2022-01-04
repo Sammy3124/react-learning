@@ -8,6 +8,9 @@ const NODE_ENV = process.env.NODE_ENV;
 const IS_DEV = NODE_ENV === 'development';
 const IS_PROD = NODE_ENV === 'production';
 
+const { HotModuleReplacementPlugin } = require('webpack');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+
 function setupDevTool() {
   if (IS_DEV) return 'eval';
   if (IS_PROD) return false;
@@ -15,13 +18,20 @@ function setupDevTool() {
 
 module.exports = {
   resolve: {
-    extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'] // Здесь мы указываем список расширений, которые webpack будет учитывать
+    extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'], // Здесь мы указываем список расширений, которые webpack будет учитывать
+    alias: {
+      'react-dom': IS_DEV ? '@hot-loader/react-dom' : 'react-dom',
+    }
   },
   mode: NODE_ENV ? NODE_ENV : 'development', // Режим сборки. В режиме development конченый js будет отформатированным и читабельным, для production он будет максимально сжатым
-  entry: path.resolve(__dirname, '../src/client/index.jsx'), // Путь к файлу откуда начинается выполнение
+  entry: [
+    path.resolve(__dirname, '../src/client/index.jsx'),
+    'webpack-hot-middleware/client?path=http://localhost:3001/static/__webpack_hmr',
+  ], // Путь к файлу откуда начинается выполнение
   output: { // Путь для собраного файла
     path: path.resolve(__dirname, '../dist/client'),
-    filename: 'client.js'
+    filename: 'client.js',
+    publicPath: '/static/',
   },
   module: {
     rules: [{  // Описываем правило, что для файлов jsx, tsx будем использовать ts-loader - компилятор в js
@@ -29,5 +39,11 @@ module.exports = {
       use: ['ts-loader']
     }]
   },
-  devtool: setupDevTool()
+  devtool: setupDevTool(),
+  plugins: IS_DEV
+    ? [
+      new CleanWebpackPlugin(),
+      new HotModuleReplacementPlugin(),
+    ]
+    : [],
 };
