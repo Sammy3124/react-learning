@@ -19,9 +19,27 @@ module.exports = {
     minimize: false // Отключаем минимизацию серверного бандла, потому что она не нужна
   },
   module: {
-    rules: [{  // Описываем правило, что для файлов jsx, tsx будем использовать ts-loader - компилятор в js
-      test: /\.[tj]sx?$/,
-      use: ['ts-loader']
-    }]
+    rules: [
+      {  // Описываем правило, что для файлов jsx, tsx будем использовать ts-loader - компилятор в js
+        test: /\.[tj]sx?$/,
+        use: ['ts-loader']
+      },
+      {
+        test: /\.less$/,
+        use: [
+          {
+            loader: 'css-loader',
+            options: {
+              modules: {
+                mode: 'local',
+                localIdentName: '[name]__[local]--[hash:base64:5]',
+                exportOnlyLocals: true
+              },
+            }
+          },
+          'less-loader',
+        ]
+      }
+    ]
   }
 };

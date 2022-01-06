@@ -24,10 +24,28 @@ module.exports = {
     filename: 'client.js'
   },
   module: {
-    rules: [{  // Описываем правило, что для файлов jsx, tsx будем использовать ts-loader - компилятор в js
-      test: /\.[tj]sx?$/,
-      use: ['ts-loader']
-    }]
+    rules: [
+      {  // Описываем правило, что для файлов jsx, tsx будем использовать ts-loader - компилятор в js
+        test: /\.[tj]sx?$/,
+        use: ['ts-loader']
+      },
+      {
+        test: /\.less$/,
+        use: [
+          'style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              modules: {
+                mode: 'local',
+                localIdentName: '[name]__[local]--[hash:base64:5]',
+              }
+            }
+          },
+          'less-loader',
+        ] // Обработка лоадеров начинается с конца - сначала из less в css, затем в style
+      }
+    ]
   },
   devtool: setupDevTool()
 };
