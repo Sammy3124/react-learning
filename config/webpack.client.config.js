@@ -7,6 +7,7 @@ const path = require('path');
 const NODE_ENV = process.env.NODE_ENV;
 const IS_DEV = NODE_ENV === 'development';
 const IS_PROD = NODE_ENV === 'production';
+const GLOBAL_CSS_REGEXP = /\.global\.css$/;
 
 function setupDevTool() {
   if (IS_DEV) return 'eval';
@@ -30,7 +31,7 @@ module.exports = {
         use: ['ts-loader']
       },
       {
-        test: /\.less$/,
+        test: /\.css$/,
         use: [
           'style-loader',
           {
@@ -41,9 +42,13 @@ module.exports = {
                 localIdentName: '[name]__[local]--[hash:base64:5]',
               }
             }
-          },
-          'less-loader',
-        ] // Обработка лоадеров начинается с конца - сначала из less в css, затем в style
+          }
+        ], // Обработка лоадеров начинается с конца - сначала из less в css, затем в style
+        exclude: GLOBAL_CSS_REGEXP,
+      },
+      {
+        test: GLOBAL_CSS_REGEXP,
+        use: ['style-loader', 'css-loader'],
       }
     ]
   },
